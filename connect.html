@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>端末一覧に接続</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; }
+    h1 { font-size: 1.5em; }
+    .device { margin: 1em 0; }
+    button { margin-left: 1em; }
+  </style>
+</head>
+<body>
+  <h1>ローカル端末一覧</h1>
+  <div id="device-list">端末を検索中...</div>
+
+  <script>
+    async function loadDevices() {
+      try {
+        const res = await fetch("http://localhost:4000/devices");
+        const devices = await res.json();
+
+        const list = document.getElementById("device-list");
+        list.innerHTML = ""; // リスト初期化
+
+        devices.forEach(d => {
+          const div = document.createElement("div");
+          div.className = "device";
+          div.innerHTML = `
+            <strong>${d.hostname}</strong> (${d.ip})
+            <button onclick="connect('${d.hostname}')">接続</button>
+          `;
+          list.appendChild(div);
+        });
+      } catch (e) {
+        document.getElementById("device-list").innerText =
+          "ローカル端末一覧の取得に失敗しました。端末検出アプリが起動しているか確認してください。";
+        console.error("Fetch error:", e);
+      }
+    }
+
+    function connect(hostname) {
+      // 端末のWeb画面へリダイレクト（例: ポート3000）
+      location.href = `http://${hostname}:3000`;
+    }
+
+    loadDevices(); // 初期実行
+  </script>
+</body>
+</html>
